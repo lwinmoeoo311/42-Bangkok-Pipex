@@ -6,7 +6,7 @@
 /*   By: lwoo <lwoo@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 16:56:31 by lwoo              #+#    #+#             */
-/*   Updated: 2025/12/11 20:54:24 by lwoo             ###   ########.fr       */
+/*   Updated: 2025/12/12 15:35:58 by lwoo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ int	main(int ac, char **av, char **env)
 	pid = fork();
 	if (!pid)
 		child_process(av, p_fd, env);
+	waitpid(pid, NULL, 0);
 	parent_process(av, p_fd, env);
 	return (0);
 }
