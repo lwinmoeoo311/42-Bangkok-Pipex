@@ -6,7 +6,7 @@
 /*   By: lwoo <lwoo@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/17 20:37:26 by lwoo              #+#    #+#             */
-/*   Updated: 2026/01/30 13:12:54 by lwoo             ###   ########.fr       */
+/*   Updated: 2026/02/05 17:51:02 by lwoo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,11 +67,12 @@ static void	do_fork(int i, int pfd[], int prev_fd, char **av)
 	close(pfd[1]);
 }
 
-static void	do_pipe(int i, int ac, char **av, char **env)
+static int	do_pipe(int i, int ac, char **av, char **env)
 {
 	int	pfd[2];
 	int	pid;
 	int	prev_fd;
+	int	status;
 
 	prev_fd = -1;
 	while (i < ac - 1)
@@ -92,7 +93,7 @@ static void	do_pipe(int i, int ac, char **av, char **env)
 		prev_fd = pfd[0];
 		i++;
 	}
-	waitpid(pid, NULL, 0);
+	return (waitpid(pid, &status, 0), status);
 }
 
 static void	here_doc(char *limiter)
@@ -113,11 +114,11 @@ static void	here_doc(char *limiter)
 		{
 			if (!ft_strncmp(line, limiter, ft_strlen(limiter)))
 			{
-				free (line);
+				free(line);
 				exit(EXIT_SUCCESS);
 			}
 			write(pfd[1], line, ft_strlen(line));
-			free (line);
+			free(line);
 		}
 	}
 	close(pfd[1]);
@@ -126,6 +127,8 @@ static void	here_doc(char *limiter)
 
 int	main(int ac, char *av[], char **env)
 {
+	int	status;
+
 	if (ac <= 5)
 		format_exception_bonus(0);
 	if (ft_strncmp(av[1], "here_doc", 8) == 0)
@@ -135,15 +138,12 @@ int	main(int ac, char *av[], char **env)
 		else
 		{
 			here_doc(av[2]);
-			do_pipe(3, ac, av, env);
+			status = do_pipe(3, ac, av, env);
 		}
 	}
 	else
-		do_pipe(2, ac, av, env);
+		status = do_pipe(2, ac, av, env);
 	while (wait(NULL) > 0)
 		;
-	return (0);
+	return (status / 256);
 }
-
-// if (!ft_strncmp(line, limiter, ft_strlen(limiter))
-				// && line[ft_strlen(limiter)] == '\n')
